@@ -6,7 +6,7 @@ version: "2"
 
 services:
   sc6_zoo_1:
-    image: "sc6/zookeeper"
+    image: "bde2020/sc6-zookeeper"
     ports: 
       - 31200:31200
       - 31201:31201
@@ -17,7 +17,7 @@ services:
     environment:
       - "constraint:node==akswnc4.aksw.internal"
   sc6_zoo_2:
-    image: "sc6/zookeeper"
+    image: "bde2020/sc6-zookeeper"
     ports:
       - 31200:31200
       - 31201:31201
@@ -28,7 +28,7 @@ services:
     environment:
       - "constraint:node==akswnc5.aksw.internal"
   sc6_zoo_3:
-    image: "sc6/zookeeper"
+    image: "bde2020/sc6-zookeeper"
     ports:
       - 31200:31200
       - 31201:31201
@@ -39,7 +39,7 @@ services:
     environment:
       - "constraint:node==akswnc6.aksw.internal"
   sc6-kafka-1:
-    image: "sc6/kafka"
+    image: "bde2020/sc6-kafka"
     depends_on:
       - sc6_zoo_1
       - sc6_zoo_2
@@ -51,7 +51,7 @@ services:
     environment:
       - "constraint:node==akswnc4.aksw.internal"
   sc6-kafka-2:
-    image: "sc6/kafka"
+    image: "bde2020/sc6-kafka"
     depends_on:
       - sc6_zoo_1
       - sc6_zoo_2
@@ -63,7 +63,7 @@ services:
     environment:
       - "constraint:node==akswnc5.aksw.internal"
   sc6-kafka-3:
-    image: "sc6/kafka"
+    image: "bde2020/sc6-kafka"
     depends_on:
       - sc6_zoo_1
       - sc6_zoo_2
@@ -75,7 +75,7 @@ services:
     environment:
       - "constraint:node==akswnc6.aksw.internal"
   sc6-flume:
-    image: "sc6/flume"
+    image: "bde2020/sc6-flume"
     depends_on:
       - sc6_zoo_1
       - sc6_zoo_2
@@ -124,7 +124,7 @@ services:
       - "SPARK_MASTER=spark://sc6-spark-master:7077"
       - "constraint:node==akswnc6.aksw.internal"
   sc6-spark-job:
-    image: sc6/spark-submit
+    image: bde2020/sc6-spark-submit
     depends_on:
       - sc6-spark-master
       - sc6-spark-worker-1
