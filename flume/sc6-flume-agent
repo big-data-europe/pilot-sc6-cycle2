@@ -1,0 +1,46 @@
+# sc6-flume-agent
+
+sc6-flume-agent.sources = dirSource
+sc6-flume-agent.channels = memChannel1
+#sc6-flume-agent.sinks = HDFS kafkaSink
+sc6-flume-agent.sinks = kafkaSink
+
+sc6-flume-agent.sources.dirSource.type = spooldir
+sc6-flume-agent.sources.dirSource.spoolDir = /var/lib/bde/flume/sc6/budgets
+sc6-flume-agent.sources.dirSource.fileHeader = true
+sc6-flume-agent.sources.dirSource.fileHeaderKey = key
+sc6-flume-agent.sources.dirSource.channels = memChannel1
+sc6-flume-agent.sources.dirSource.deserializer = org.apache.flume.sink.solr.morphline.BlobDeserializer$Builder
+sc6-flume-agent.sources.dirSource.deserializer.maxBlobLength = 100000000
+sc6-flume-agent.sources.dirSource.recursiveDirectorySearch = true
+sc6-flume-agent.sources.dirSource.basenameHeader = true
+sc6-flume-agent.sources.dirSource.basenameHeaderKey = basename
+sc6-flume-agent.sources.dirSource.parentDirectoryHeader = true
+sc6-flume-agent.sources.dirSource.parentDirectoryHeaderKey = parentDirectory
+sc6-flume-agent.sources.dirSource.relativeParentDirectoryHeader = true
+sc6-flume-agent.sources.dirSource.relativeParentDirectoryHeaderKey = relativeParentDirectory
+
+sc6-flume-agent.channels.memChannel1.type = memory
+sc6-flume-agent.channels.memChannel1.capacity = 10000000
+sc6-flume-agent.channels.memChannel1.transactionCapacity = 100000
+
+#sc6-flume-agent.channels.memChannel2.type = memory
+#sc6-flume-agent.channels.memChannel2.capacity = 10000
+#sc6-flume-agent.channels.memChannel2.transactionCapacity = 100
+
+#sc6-flume-agent.sinks.HDFS.type = hdfs
+#sc6-flume-agent.sinks.HDFS.hdfs.path = hdfs://bigdata-one.semantic-web.at:54310/budgetdata/thessaloniki%{relativeParentDirectory}
+#sc6-flume-agent.sinks.HDFS.hdfs.fileType = DataStream
+#sc6-flume-agent.sinks.HDFS.hdfs.filePrefix = %{basename}
+#sc6-flume-agent.sinks.HDFS.hdfs.batchSize = 1000
+#sc6-flume-agent.sinks.HDFS.hdfs.rollSize = 0
+#sc6-flume-agent.sinks.HDFS.hdfs.rollCount = 10000
+#sc6-flume-agent.sinks.HDFS.channel = memChannel1
+
+sc6-flume-agent.sinks.kafkaSink.type = org.apache.flume.sink.kafka.KafkaSink
+sc6-flume-agent.sinks.kafkaSink.topic = sc6-flume-agent-001
+sc6-flume-agent.sinks.kafkaSink.brokerList = sc6-kafka-1:9092,sc6-kafka-2:9092,sc6-kafka-3:9092
+sc6-flume-agent.sinks.kafkaSink.requiredAcks = 1
+sc6-flume-agent.sinks.kafkaSink.kafka.producer.max.request.size = 40000000
+sc6-flume-agent.sinks.kafkaSink.batchSize = 20
+sc6-flume-agent.sinks.kafkaSink.channel = memChannel1

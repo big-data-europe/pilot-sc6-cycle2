@@ -1,0 +1,11 @@
+[
+  {
+    "sh":"/app/bin/kafka-server-start.sh",
+    "./config/server.properties":"",
+    "--override":"-Djava.net.preferIPv4Stack=true",
+    "--override":"delete.topic.enable=true",
+    "--override":"advertised.host.name=$HOSTNAME",
+    "--override":"advertised.port=9092",
+    "--override":"zookeeper.connect=sc6_zoo_1:31202,sc6_zoo_2:31202,sc6_zoo_3:31202/kafka"
+  }
+]
