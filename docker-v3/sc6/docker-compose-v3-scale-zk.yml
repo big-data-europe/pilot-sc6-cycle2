@@ -1,0 +1,14 @@
+version: "3.4"
+
+services:
+  sc6_zoo:
+    image: "sc6/zookeeper"
+    hostname: "sc6_zoo_{{.Task.Slot}}"
+    command: "bash -c /startup"
+    networks:
+      bridge:
+    deploy:
+      mode: replicated
+      replicas: 3
+networks:
+  bridge:

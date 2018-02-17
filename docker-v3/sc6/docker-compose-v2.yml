@@ -1,0 +1,130 @@
+version: "3"
+
+services:
+  sc6_zoo_1:
+    image: "sc6/zookeeper"
+    ports: 
+      - 31200:31200
+      - 31201:31201
+      - 31202:31202
+    container_name: sc6_zoo_1
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_1"
+    environment:
+      - "constraint:node==akswnc4.aksw.internal"
+  sc6_zoo_2:
+    image: "sc6/zookeeper"
+    ports:
+      - 31200:31200
+      - 31201:31201
+      - 31202:31202
+    container_name: sc6_zoo_2
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_2"
+    environment:
+      - "constraint:node==akswnc5.aksw.internal"
+  sc6_zoo_3:
+    image: "sc6/zookeeper"
+    ports:
+      - 31200:31200
+      - 31201:31201
+      - 31202:31202
+    container_name: sc6_zoo_3
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_3"
+    environment:
+      - "constraint:node==akswnc6.aksw.internal"
+  sc6-kafka-1:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    ports:
+      - 9092:9092
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-1"
+    environment:
+      - "constraint:node==akswnc4.aksw.internal"
+  sc6-kafka-2:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    ports:
+      - 9092:9092
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-2"
+    environment:
+      - "constraint:node==akswnc5.aksw.internal"
+  sc6-kafka-3:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    ports:
+      - 9092:9092
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-3"
+    environment:
+      - "constraint:node==akswnc6.aksw.internal"
+  sc6-flume:
+    image: "sc6/flume"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+      - sc6-kafka-1
+      - sc6-kafka-2
+      - sc6-kafka-3
+    command: "bash -c /app/bin/flume-init"
+    volumes:
+      - ./data:/var/lib/bde/flume/sc6/budgets
+    environment:
+      - "constraint:node==akswnc4.aksw.internal"
+  sc6-spark-master:
+    image: bde2020/spark-master:2.1.0-hadoop2.7
+    container_name: sc6-spark-master
+    ports:
+      - "58080:8080"
+      - "57077:7077"
+    environment:
+      - "constraint:node==akswnc4.aksw.internal"
+  sc6-spark-worker-1:
+    image: bde2020/spark-worker:2.1.0-hadoop2.7
+    depends_on:
+      - sc6-spark-master
+    ports:
+      - "58081:8081"
+    environment:
+      - "SPARK_MASTER=spark://sc6-spark-master:7077"
+      - "constraint:node==akswnc4.aksw.internal"
+  sc6-spark-worker-2:
+    image: bde2020/spark-worker:2.1.0-hadoop2.7
+    depends_on:
+      - sc6-spark-master
+    ports:
+      - "58081:8081"
+    environment:
+      - "SPARK_MASTER=spark://sc6-spark-master:7077"
+      - "constraint:node==akswnc5.aksw.internal"
+  sc6-spark-worker-3:
+    image: bde2020/spark-worker:2.1.0-hadoop2.7
+    depends_on:
+      - sc6-spark-master
+    ports:
+      - "58081:8081"
+    environment:
+      - "SPARK_MASTER=spark://sc6-spark-master:7077"
+      - "constraint:node==akswnc6.aksw.internal"
+  sc6-spark-job:
+    image: sc6/spark-submit
+    depends_on:
+      - sc6-spark-master
+      - sc6-spark-worker-1
+      - sc6-spark-worker-2
+      - sc6-spark-worker-3
+    environment:
+      - "constraint:node==akswnc4.aksw.internal"

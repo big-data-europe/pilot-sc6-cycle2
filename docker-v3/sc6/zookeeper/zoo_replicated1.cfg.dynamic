@@ -1,0 +1,3 @@
+server.1=sc6_zoo_1:31200:31201:participant;31202
+server.2=sc6_zoo_2:31200:31201:participant;31202
+server.3=sc6_zoo_3:31200:31201:participant;31202

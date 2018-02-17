@@ -1,0 +1,94 @@
+version: "3.4"
+
+services:
+  sc6_zoo_1:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_1"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+  sc6_zoo_2:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_2"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc5.aksw.uni-leipzig.de
+  sc6_zoo_3:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc6.aksw.uni-leipzig.de
+  sc6-kafka-1:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-1"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+  sc6-kafka-2:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-2"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc5.aksw.uni-leipzig.de
+  sc6-kafka-3:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc6.aksw.uni-leipzig.de
+  sc6-flume:
+    image: "sc6/flume"
+    depends_on:
+      - sc6-kafka-1
+    command: "bash -c /app/bin/flume-init"
+    volumes:
+      - sc6:/data
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+volumes:
+  sc6:   
+networks:
+  hbase:
+    external:
+      name: hbase

@@ -1,0 +1,152 @@
+version: "3.4"
+
+services:
+  sc6_zoo_1:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_1"
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+  sc6_zoo_2:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_2"
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc5.aksw.uni-leipzig.de
+  sc6_zoo_3:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_3"
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc6.aksw.uni-leipzig.de
+  sc6-kafka-1:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-1"
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+  sc6-kafka-2:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-2"
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc5.aksw.uni-leipzig.de
+  sc6-kafka-3:
+    image: "sc6/kafka"
+    depends_on:
+      - sc6_zoo_1
+      - sc6_zoo_2
+      - sc6_zoo_3
+    command: "bash -c /app/bin/kafka-init"
+    hostname: "sc6-kafka-3"
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc6.aksw.uni-leipzig.de
+  sc6-spark-master:
+    image: bde2020/spark-master:2.1.0-hadoop2.7
+    ports:
+      - 48080:8080
+    hostname: sc6-spark-master
+    networks:
+      - sc6
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname==akswnc4.aksw.uni-leipzig.de
+  sc6-spark-worker:
+    image: sc6/worker:latest
+    hostname: "sc6-spark-worker"
+    networks:
+      - sc6
+    depends_on:
+      - sc6-spark-master
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname==akswnc4.aksw.uni-leipzig.de
+    environment:
+      - SPARK_MASTER=spark://sc6-spark-master:7077
+      - KAFKA_METADATA_BROKER_LIST=sc6-kafka-1:9092
+      - ZK_CONNECT=sc6_zoo_1:31202,sc6_zoo_2:31202,sc6_zoo_3:31202/kafka
+  sc6-flume:
+    image: "sc6/flume"
+    networks:
+      - sc6
+    depends_on:
+      - sc6-kafka-1
+    command: "bash -c /app/bin/flume-init"
+    volumes:
+      - sc6:/data
+    deploy:
+      mode: replicated
+      replicas: 0
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+  sc6-spark-job:
+    image: sc6/spark-submit
+    ports:
+      - 48081:8081
+    hostname: "sc6-spark-job"
+    networks:
+      - sc6
+    depends_on:
+      - sc6-spark-master
+      - sc6-spark-worker
+    deploy:
+      mode: replicated
+      replicas: 0
+
+volumes:
+  sc6:   
+networks:
+  sc6:
+    external:
+      name: sc6

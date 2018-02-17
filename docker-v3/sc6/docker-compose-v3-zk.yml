@@ -1,0 +1,33 @@
+version: "3.4"
+
+services:
+  sc6_zoo_1:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_1"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc4.aksw.uni-leipzig.de
+  sc6_zoo_2:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup && echo 'done'"
+    hostname: "sc6_zoo_2"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc5.aksw.uni-leipzig.de
+  sc6_zoo_3:
+    image: "sc6/zookeeper"
+    command: "bash -c /startup"
+    hostname: "sc6_zoo_3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == akswnc6.aksw.uni-leipzig.de

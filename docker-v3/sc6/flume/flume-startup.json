@@ -1,0 +1,10 @@
+[
+  {
+    "bash":"/app/bin/flume-ng",
+    "agent":"",
+    "--name":"sc6-flume-agent",
+    "--conf":"/config/",
+    "-z":"sc6_zoo_1:31202,sc6_zoo_2:31202,sc6_zoo_3:31202",
+    "-p":"/flumeX"
+  }
+]

@@ -1,0 +1,23 @@
+version: "3.4"
+
+services:
+  sc6-spark-master:
+    image: bde2020/spark-master:2.1.0-hadoop2.7
+    hostname: sc6-spark-master
+    ports:
+      - 48080:8080
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname==akswnc4.aksw.uni-leipzig.de
+  sc6-spark-worker:
+    image: bde2020/spark-worker:2.1.0-hadoop2.7
+    depends_on:
+      - sc6-spark-master
+    deploy:
+      mode: replicated
+      replicas: 3
+    environment:
+      - SPARK_MASTER=spark://sc6-spark-master:7077
